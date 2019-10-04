@@ -1,7 +1,7 @@
 "use strict";
 
 // urls
-const urlCash = "wss://beta.ws.nanocrawler.cc/",
+const urlCash = "wss://90.229.199.116:57123",
 	urlCore = "wss://ws.blockchain.info/inv",
 	urlCors = "https://txhighway-proxy.herokuapp.com/index.php?url=", //"https://txhighway-cors-proxy-porlybe.c9users.io/index.php?url=", //"https://cors-anywhere.herokuapp.com/", //"http://cors-proxy.htmldriven.com/?url=",
 	urlBtc = "api.btc.com/v3/",
