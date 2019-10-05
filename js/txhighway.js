@@ -6,7 +6,7 @@ const urlCash = "wss://beta.ws.nanocrawler.cc",
 	urlCors = "https://txhighway-proxy.herokuapp.com/index.php?url=", //"https://txhighway-cors-proxy-porlybe.c9users.io/index.php?url=", //"https://cors-anywhere.herokuapp.com/", //"http://cors-proxy.htmldriven.com/?url=",
 	urlBtc = "api.btc.com/v3/",
 	urlBlockchainInfo = "https://api.blockchain.info/",
-	urlCoinMarketCap = "https://api.coinmarketcap.com/v1/ticker/";
+	urlCoinMarketCap = "https://api.coinpaprika.com/v1/tickers/";
 
 // sockets
 const socketCash = new WebSocket(urlCash),
@@ -84,12 +84,12 @@ let WIDTH = null,
 	DONATION_GOAL = 2; // goal of donation in bch
 
 // max value for vehicle types
-let TX_MICRO = 0.01,
-	TX_SMALL = 0.1,
-	TX_SMALL_MED = 1,
-	TX_MEDIUM = 10,
-	TX_LARGE = 100,
-	TX_WHALE = 1000;
+let TX_MICRO = 0.1,
+	TX_SMALL = 1,
+	TX_SMALL_MED = 10,
+	TX_MEDIUM = 1000,
+	TX_LARGE = 10000,
+	TX_WHALE = 100000;
 
 // animation
 let requestID = null;
@@ -109,9 +109,9 @@ let txCash = [],
 
 // connect to sockets
 socketCash.onopen = ()=>{
-	socketCash.send(JSON.stringify({ 
-    event: "subscribe", 
-    data: ["all"] 
+	socketCash.send(JSON.stringify({
+    event: "subscribe",
+    data: ["all"]
   }));
 }
 
@@ -121,7 +121,7 @@ socketCore.onopen = ()=> {
 
 socketCash.onmessage = (onmsg) =>{
 	let res = JSON.parse(onmsg.data);
-	
+
 	var txData = {
 		"out": [res.data.account],
 		"hash": res.data.hash,
@@ -129,7 +129,7 @@ socketCash.onmessage = (onmsg) =>{
 		"valueOut": (res.data.amount / 1000000000000000000000000000000),
 		"isCash": true
 	}
-	
+
 	newTX(true, txData);
 }
 
@@ -141,9 +141,9 @@ socketCore.onmessage = (onmsg)=> {
 	let res = JSON.parse(onmsg.data);
 
 	if (res.op == "utx"){
-		let t = parseInt(corePoolInfo.textContent.replace(/\,/g,''));			
+		let t = parseInt(corePoolInfo.textContent.replace(/\,/g,''));
 		corePoolInfo.textContent = formatWithCommas(t +1);
-		
+
 		res.x.inputs.forEach(i => {
             if (JSON.stringify(i.script).length < 120){
 				res.x["sw"] = true;
@@ -153,14 +153,14 @@ socketCore.onmessage = (onmsg)=> {
 		newTX(false, res.x);
 	} else {
 		blockNotify(res.x, false);
-		
+
 	}
 }
 
 // initialise everything
 function init(){
 	// setup canvas
-	canvas.width = window.innerWidth; 
+	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 
 	// listenners
@@ -175,7 +175,7 @@ function init(){
 	carLargeCash.src = "assets/sprites/bch-large.png";
 	carXLargeCash.src = "assets/sprites/bch-xlarge.png";
 	carWhaleCash.src = "assets/sprites/bch-whale.png";
-	carUserCash.src = "assets/sprites/tx-taxi.png"; 
+	carUserCash.src = "assets/sprites/tx-taxi.png";
 	carLambo.src = "assets/sprites/lambo.png";
 	carSatoshiBones.src = "assets/sprites/bones.png";
 
@@ -230,15 +230,15 @@ function init(){
 	// acquire data for signs
 	updateMempoolData();
 	setTimeout(() => {
-		updatePriceData();	
+		updatePriceData();
 	}, 3000);
 	getCoreConfTime(urlBlockchainInfo + "charts/avg-confirmation-time?format=json&cors=true");
 
 	// set donation goal information
 	setTimeout(() => {
-		getDevDonations();	
+		getDevDonations();
 	}, 3000);
-	
+
 	// remove loading screen
 	onReady(function () {
 		show('page', true);
@@ -264,8 +264,8 @@ function updateMempoolData(){
 }
 
 function updatePriceData(){
-	getPriceData(urlCoinMarketCap + "nano/");
-	getPriceData(urlCoinMarketCap + "bitcoin/");
+	getPriceData(urlCoinMarketCap + "nano-nano/");
+	getPriceData(urlCoinMarketCap + "btc-bitcoin/");
 }
 // get current balance of dev donation address
 function getDevDonations(){
@@ -296,14 +296,19 @@ function getPriceData(url){
 	let xhr = new XMLHttpRequest();
 
 	xhr.onload = function(){
-		if (xhr.readyState == 4 && xhr.status == 200) {		
+		if (xhr.readyState == 4 && xhr.status == 200) {
 			let res = JSON.parse(xhr.responseText);
-			if (res[0].symbol == "NANO"){
-				PRICE_BCH = res[0].price_usd;
+      console.log(res)
+			if (res.symbol == "NANO"){
+				PRICE_BCH = res.quotes.USD.price;
 				document.getElementById("price_bch").textContent = "USD $" + formatWithCommas(parseFloat(PRICE_BCH).toFixed(2));
-			} else {
-				PRICE_BTC = res[0].price_usd;
+        console.log("Updating nano price")
+        console.log(PRICE_BCH)
+			} else if (res.symbol == "BTC"){
+				PRICE_BTC = res.quotes.USD.price;
 				document.getElementById("price_btc").textContent = "USD $" + formatWithCommas(parseFloat(PRICE_BTC).toFixed(2));
+        console.log("Updating bitcoin price")
+        console.log(PRICE_BTC)
 			}
 		}
 	}
@@ -314,7 +319,7 @@ function getPriceData(url){
 
 // adds thousands seperator to large numbers
 function formatWithCommas(x){
-	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");	
+	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 // notify users when a new block is found
@@ -336,7 +341,7 @@ function blockNotify(data, isCash){
 		t = parseInt(corePoolInfo.textContent.replace(/\,/g,''));
 		amount = data.nTx;
 
-		
+
 		// sets speed modifier for btc lane
 		let mod = t/amount/100;
 		if (mod >= 0.8){
@@ -354,7 +359,7 @@ function blockNotify(data, isCash){
 	}
 
 	if (isVisible) playSound(audioChaChing);
-	
+
 	confirmedAmount.textContent = amount + "x " + ticker;
 	confirmedNotify.style.display = "block"; //no pun intended
 	setTimeout(() => {
@@ -371,7 +376,7 @@ function getPoolData(url, isCash){
 	xhr.onreadystatechange = function () {
 		if (xhr.readyState == 4 && xhr.status == 200) {
 			let obj = JSON.parse(xhr.responseText);
-			
+
 			if (isCash){
 				cashPoolInfo.textContent = formatWithCommas(obj.data.count);
 			} else {
@@ -387,7 +392,7 @@ function getPoolData(url, isCash){
 				}
 			}
 		xhr.abort();
-		} 
+		}
 	}
 
 	xhr.open('GET', url, true);
@@ -461,8 +466,8 @@ function newTX(isCash, txInfo){
 			if(e.id == txInfo.hash) txExsists = true;
 		});
 		if (txExsists) return;
-		
-		let t = parseInt(cashPoolInfo.textContent.replace(/\,/g,''));			
+
+		let t = parseInt(cashPoolInfo.textContent.replace(/\,/g,''));
 		cashPoolInfo.textContent = formatWithCommas(t +1);
 
 		let randLane = Math.floor(Math.random() * 8) + 3;
@@ -480,12 +485,12 @@ function newTX(isCash, txInfo){
 
 // adds tx info to the side list
 function addTxToList(isCash, txid, valueOut, car){
-	
+
 	let listItem = document.createElement("LI");
 	let anchor = document.createElement("A");
 	let text = "txid: " + txid.substring(0, 7) + "...\n";
 	text += "value: " + valueOut.toString().substring(0,9);
-	
+
 	let textNode = document.createTextNode(text);
 
 	anchor.setAttribute("target", "_blank");
@@ -525,9 +530,9 @@ function createVehicle(type, arr, txInfo, lane, isCash){
 		valOut += tx.value/100000000;
 	});
 
-	
+
 	fee = (valIn - valOut *100000000)/100000000;
-	
+
 	if (fee < 0) fee = 0;
 
 	if (isCash){
@@ -561,7 +566,7 @@ function createVehicle(type, arr, txInfo, lane, isCash){
 			}
 		});
 	}
-	
+
 
 	// fix btc vehicle positioning to prevent pile ups. <-- use this if above causes performance issues
 /*  	if (arr.length > 0 && !isCash){
@@ -629,9 +634,9 @@ function getCar(valueOut, donation, isCash, userTx, sdTx, sw){
 	}
 
 	if(sw) return carSegwit;
-	
+
 	// satoshi bones tx
-	//if(sdTx) return carSatoshiBones;	
+	//if(sdTx) return carSatoshiBones;
 
 	// user tx vehicles need to go here
 	if (userTx){
@@ -648,7 +653,7 @@ function getCar(valueOut, donation, isCash, userTx, sdTx, sw){
 	} else {
 		val = valueOut * PRICE_BTC;
 	}
-	
+
 	if (val <= TX_MICRO){
 		if (isCash){
 			return carMicroCash;
@@ -662,7 +667,7 @@ function getCar(valueOut, donation, isCash, userTx, sdTx, sw){
 		} else {
 			return carSmallCore;
 		}
-	} else if (val > TX_SMALL && val <= TX_SMALL_MED){	
+	} else if (val > TX_SMALL && val <= TX_SMALL_MED){
 		if (isCash){
 			return carSmallMedCash;
 		} else {
@@ -710,8 +715,8 @@ function addSounds(carType){
 
 	if (carType == carLambo){
 		let randSong = Math.floor(Math.random() * 2) + 1;
-		
-		if (randSong == 1){		
+
+		if (randSong == 1){
 			playSound(audioMercy);
 		} else {
 			playSound(audioRide);
@@ -734,7 +739,7 @@ function addSounds(carType){
 		carType == carXLargeCash ||
 		carType == carXLargeCore){
 			audioDiesel.playbackRate = 1.4;
-			playSound(audioDiesel);	
+			playSound(audioDiesel);
 	} else if (carType == carWhaleCash ||
 		carType == carWhaleCore){
 			audioSemi.playbackRate = 1.8;
@@ -802,7 +807,7 @@ let isDonationTx = function(txInfo){
 
 	vouts.forEach((key)=>{
 		let k = key.addr;
-		
+
 		if (k == "3ECKq7onkjnRQR2nNe5uUJp2yMsXRmZavC" ||
 				k == "3MtCFL4aWWGS5cDFPbmiNKaPZwuD28oFvF") {
 					isDonation = true;
@@ -817,7 +822,7 @@ let isDonationTx = function(txInfo){
 let isSatoshiBonesTx = function(txInfo){
 	let satoshiBonesTx = false;
 
-	console.log(txInfo)
+	//console.log(txInfo)
 
 	txInfo.out.forEach((key)=>{
 		check(key.addr);
@@ -853,7 +858,7 @@ let isUserTx = function(txInfo){
 		let keys = Object.keys(key);
 		if (key.addr == cashAddress.value || key.addr == coreAddress.value){
 			isUserTx = true;
-		} 
+		}
 	});
 	return isUserTx;
 }
@@ -868,7 +873,7 @@ function drawVehicles(arr){
 
 	arr.forEach(function(item, index, object){
 
-		if(!item.isCash && konamiActive) { 
+		if(!item.isCash && konamiActive) {
 			car = carSpam;
 		} else {
 			car = item.car;
@@ -899,7 +904,7 @@ function drawVehicles(arr){
 				y += item.y;
 			}
 			ctx.drawImage(car, item.x, y, width, SINGLE_LANE);
-			
+
 		} else {
 			if (!item.isCash) txWaiting += 1;
 		}
@@ -910,9 +915,9 @@ function drawVehicles(arr){
 			let spd = SPEED * SPEED_MODIFIER;
 			item.x += spd;
 			isCash = false;
-			
+
 		}
-		
+
 	});
 
 	// update tx offscreen sign
@@ -1064,7 +1069,7 @@ $('.close').on('click', function(){
 })
 
 //konami
-let easter_egg = new Konami(function() { 
+let easter_egg = new Konami(function() {
 	if (konamiActive == false || konamiActive == null) {
 		playSound(audioAllSpam);
 		konamiActive = true;
