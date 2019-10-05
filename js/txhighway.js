@@ -301,7 +301,8 @@ function getPriceData(url){
       console.log(res)
 			if (res.symbol == "NANO"){
 				PRICE_BCH = res.quotes.USD.price;
-				document.getElementById("price_bch").textContent = "USD $" + formatWithCommas(parseFloat(PRICE_BCH).toFixed(2));
+				//document.getElementById("price_bch").textContent = "USD $" + formatWithCommas(parseFloat(PRICE_BCH).toFixed(2));
+        document.getElementById("price_bch").textContent = "Free";
         console.log("Updating nano price")
         console.log(PRICE_BCH)
 			} else if (res.symbol == "BTC"){
