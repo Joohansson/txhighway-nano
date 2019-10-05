@@ -1,7 +1,7 @@
 "use strict";
 
 // urls
-const urlCash = "wss://90.229.199.116:57123",
+const urlCash = "wss://beta.ws.nanocrawler.cc",
 	urlCore = "wss://ws.blockchain.info/inv",
 	urlCors = "https://txhighway-proxy.herokuapp.com/index.php?url=", //"https://txhighway-cors-proxy-porlybe.c9users.io/index.php?url=", //"https://cors-anywhere.herokuapp.com/", //"http://cors-proxy.htmldriven.com/?url=",
 	urlBtc = "api.btc.com/v3/",
@@ -79,17 +79,17 @@ let WIDTH = null,
 	SPEED = 12,
 	SPEED_MODIFIER = 0.5,
 	VOLUME = 0.5,
-	PRICE_BCH = 0,
-	PRICE_BTC = 0,
+	PRICE_BCH = 1,
+	PRICE_BTC = 1000,
 	DONATION_GOAL = 2; // goal of donation in bch
 
 // max value for vehicle types
-let TX_MICRO = 10,
-	TX_SMALL = 1000,
-	TX_SMALL_MED = 10000,
-	TX_MEDIUM = 100000,
-	TX_LARGE = 500000,
-	TX_WHALE = 1000000;
+let TX_MICRO = 0.01,
+	TX_SMALL = 0.1,
+	TX_SMALL_MED = 1,
+	TX_MEDIUM = 10,
+	TX_LARGE = 100,
+	TX_WHALE = 1000;
 
 // animation
 let requestID = null;
@@ -129,6 +129,8 @@ socketCash.onmessage = (onmsg) =>{
 		"valueOut": (res.data.amount / 1000000000000000000000000000000),
 		"isCash": true
 	}
+	
+	console.log(txData);
 	
 	newTX(true, txData);
 }
