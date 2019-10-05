@@ -85,11 +85,11 @@ let WIDTH = null,
 
 // max value for vehicle types
 let TX_MICRO = 0.1,
-	TX_SMALL = 1,
-	TX_SMALL_MED = 10,
-	TX_MEDIUM = 1000,
-	TX_LARGE = 10000,
-	TX_WHALE = 100000;
+	TX_SMALL = 10,
+	TX_SMALL_MED = 100,
+	TX_MEDIUM = 10000,
+	TX_LARGE = 100000,
+	TX_WHALE = 1000000;
 
 // animation
 let requestID = null;
