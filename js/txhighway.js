@@ -80,7 +80,7 @@ let WIDTH = null,
 	SPEED_MODIFIER = 0.5,
 	VOLUME = 0.5,
 	PRICE_BCH = 1,
-	PRICE_BTC = 1000,
+	PRICE_BTC = 100,
 	DONATION_GOAL = 2; // goal of donation in bch
 
 // max value for vehicle types
@@ -129,8 +129,6 @@ socketCash.onmessage = (onmsg) =>{
 		"valueOut": (res.data.amount / 1000000000000000000000000000000),
 		"isCash": true
 	}
-	
-	console.log(txData);
 	
 	newTX(true, txData);
 }
