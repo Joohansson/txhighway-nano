@@ -1,7 +1,7 @@
 "use strict";
 
 // urls
-const urlCash = "wss://beta.ws.nanocrawler.cc",
+const urlCash = "wss://ws-beta.nanoticker.info",
 	urlCore = "wss://ws.blockchain.info/inv",
 	urlCors = "https://txhighway-proxy.herokuapp.com/index.php?url=", //"https://txhighway-cors-proxy-porlybe.c9users.io/index.php?url=", //"https://cors-anywhere.herokuapp.com/", //"http://cors-proxy.htmldriven.com/?url=",
 	urlBtc = "api.btc.com/v3/",
@@ -110,8 +110,8 @@ let txCash = [],
 // connect to sockets
 socketCash.onopen = ()=>{
 	socketCash.send(JSON.stringify({
-    event: "subscribe",
-    data: ["all"]
+    action: "subscribe",
+    topic: "confirmation"
   }));
 }
 
@@ -123,10 +123,10 @@ socketCash.onmessage = (onmsg) =>{
 	let res = JSON.parse(onmsg.data);
 
 	var txData = {
-		"out": [res.data.account],
-		"hash": res.data.hash,
+		"out": [res.message.account],
+		"hash": res.message.hash,
 		"inputs": [],
-		"valueOut": (res.data.amount / 1000000000000000000000000000000),
+		"valueOut": (res.message.amount / 1000000000000000000000000000000),
 		"isCash": true
 	}
 
