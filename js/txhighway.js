@@ -121,12 +121,17 @@ socketCore.onopen = ()=> {
 
 socketCash.onmessage = (onmsg) =>{
 	let res = JSON.parse(onmsg.data);
+  let amount = res.message.amount;
+  if (amount == '0') {
+    amount = 1;
+  }
+  console.log(amount)
 
 	var txData = {
 		"out": [res.message.account],
 		"hash": res.message.hash,
 		"inputs": [],
-		"valueOut": (res.message.amount / 1000000000000000000000000000000),
+		"valueOut": (amount / 1000000000000000000000000000000),
 		"isCash": true
 	}
 
