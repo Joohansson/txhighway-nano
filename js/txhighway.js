@@ -79,7 +79,8 @@ let WIDTH = null,
 	SINGLE_LANE = HEIGHT/14,
 	SPEED = 12,
 	SPEED_MODIFIER = 0.5,
-  SPEED_MODIFIER_NANO = 2.5,
+  SPEED_MODIFIER_NANO_MAX = 8,
+  SPEED_MODIFIER_NANO = 1,
 	VOLUME = 0.5,
 	PRICE_BCH = 1,
 	PRICE_BTC = 100,
@@ -112,6 +113,7 @@ let txCash = [],
 // nano
 var nanoTransactions = 0;
 var txWaitingNanoOld = 0; //needed to check off screen tx
+var speedModifierNano = SPEED_MODIFIER_NANO; // dynamic speed
 
 // connect to sockets
 socketCore.onopen = ()=> {
@@ -919,7 +921,7 @@ function drawVehicles(arr){
 			car = item.car;
 		}
 
-		let intro = -car.width - SPEED * SPEED_MODIFIER_NANO;
+		let intro = -car.width - SPEED * speedModifierNano;
 		if (!item.isCash) intro = -car.width - SPEED * SPEED_MODIFIER;
 
 		if (item.x > intro){
@@ -954,20 +956,34 @@ function drawVehicles(arr){
 		}
 
 		if(item.isCash){
-			item.x += SPEED * SPEED_MODIFIER_NANO;
+			item.x += SPEED * speedModifierNano;
+      transactionsWaitingNano.textContent = txWaitingNanoOld;
+
+      // adjust nano speed
+      if (txWaitingNanoOld > 0) {
+        speedModifierNano += 0.0001;
+      }
+      else {
+        speedModifierNano -= 0.0001;
+      }
+      if (speedModifierNano > SPEED_MODIFIER_NANO_MAX) {
+        speedModifierNano = SPEED_MODIFIER_NANO_MAX;
+      }
+      if (speedModifierNano < SPEED_MODIFIER_NANO) {
+        speedModifierNano = SPEED_MODIFIER_NANO;
+      }
+
+      if (txWaitingNano == 0) {
+        txWaitingNanoOld = txWaitingNano;
+      }
 		} else {
 			let spd = SPEED * SPEED_MODIFIER;
 			item.x += spd;
 			isCash = false;
+      // update tx offscreen sign
+    	transactionsWaiting.textContent = txWaiting;
 		}
 	});
-
-	// update tx offscreen sign
-	transactionsWaiting.textContent = txWaiting;
-  transactionsWaitingNano.textContent = txWaitingNanoOld;
-  if (txWaitingNano == 0) {
-    txWaitingNanoOld = txWaitingNano;
-  }
 
 	// play horns if there's more than 5 vehicles off screen
 	if(audioHorns && !isCash && !isCoreMuted){
