@@ -1,4 +1,4 @@
-/* http://meyerweb.com/eric/tools/css/reset/ 
+/* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
 */
@@ -12,8 +12,8 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
   margin: 0;
@@ -24,7 +24,7 @@ time, mark, audio, video {
   vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
   display: block;
 }
@@ -184,7 +184,7 @@ span {
   display:block;
   z-index:999;
 }
-@-moz-document url-prefix() { 
+@-moz-document url-prefix() {
     .nav {top:92px;}
   }
 .nav a {
@@ -219,7 +219,7 @@ span {
   line-height:1;
 }
 
-@-moz-document url-prefix() { 
+@-moz-document url-prefix() {
 
   .core-nav {top:425px;}
 
@@ -275,7 +275,7 @@ color:#444;
     overflow: hidden; /* Enable scroll if needed */
 
     z-index:9999;
-    /*background-color: rgb(0,0,0); 
+    /*background-color: rgb(0,0,0);
     background-color: rgba(0,0,0,0.4); */
 }
 
@@ -298,7 +298,7 @@ color:#444;
 
 /* Add Animation */
 @-webkit-keyframes animatetop {
-    from {bottom:-300px; opacity:0} 
+    from {bottom:-300px; opacity:0}
     to {bottom:0; opacity:1}
 }
 @keyframes animatetop {
@@ -637,7 +637,7 @@ margin:15px 0;display:block;
     height: 52.36%;
     width:36px;
     right: 5%;
-    
+
 }
 
 .fees-toll.fees-btc, .fees-btc {
@@ -752,7 +752,7 @@ background:#2e2e2e;
     }
 
     .fee-title.secondary {display:none;}
-    
+
     .fee-title {
        /* Safari */
         -webkit-transform: rotate(90deg);
@@ -871,7 +871,7 @@ img.logo-label {
 .core-pool {
   right: 0;
   bottom: 0%;
-  text-align: center; 
+  text-align: center;
   background-color: white;
   z-index:4;
 }*/
@@ -1040,7 +1040,7 @@ span.divider {
   border-radius: 3px;
   line-height: 1;
   padding: 2px;
-  width: 75%;
+  width: 60%;
   position: absolute;
   right: 10px;
   top: 7px;
@@ -1064,7 +1064,7 @@ span.divider {
 .road-sign .sign-title .censored {
      position: absolute;
     top: 0px;
-    left: 41px;
+    left: 25px;
     z-index: 100;
     background: #231F20 url(assets/bg/c2.png) no-repeat center center;
     width: 109px;
@@ -1130,10 +1130,14 @@ span.divider {
   border-radius: 10px;
   position: fixed;
   left: 8px;
-  bottom: 11.5%;
+  bottom: 5%;
   z-index: 99;
   width: 70px;
   /*box-shadow: 2px 3px 15px rgba(0, 0, 0, 0.3);*/
+}
+
+.waiting-sign-nano {
+  bottom: 34% !important;
 }
 
 .waiting-sign .sign-border {
@@ -1378,7 +1382,7 @@ height:auto;
   top: -50%;
   left:-50%;
   text-align: center;
-  
+
   background: rgba(226,226,226,1);
   background: -moz-linear-gradient(45deg, rgba(226,226,226,1) 0%, rgba(254,254,254,1) 100%);
   background: -webkit-gradient(left bottom, right top, color-stop(0%, rgba(226,226,226,1)), color-stop(100%, rgba(254,254,254,1)));
@@ -1690,7 +1694,7 @@ input[type=range]:focus::-ms-fill-upper {
 
 /* Range Slider for speed control */
 #slidecontainer {
-  width: auto; 
+  width: auto;
   position: absolute;
   right: 240px;
   top: 15px;
@@ -1746,7 +1750,7 @@ input[type=range]:focus::-ms-fill-upper {
   background-color: #eee;
   text-align:center;
   overflow-y: scroll;
-  
+
 }
 
 #transactions li {
@@ -1769,7 +1773,7 @@ input[type=range]:focus::-ms-fill-upper {
 }
 
 /* #tx-list-button {
-  position:fixed; 
+  position:fixed;
   top: 5px;
   right: 190px;
 } */
@@ -1815,7 +1819,7 @@ input[type=range]:focus::-ms-fill-upper {
   .nav {
     top: 15%;
   }
-  
+
   .nav a i {
     line-height:1;
   }
@@ -1835,7 +1839,7 @@ input[type=range]:focus::-ms-fill-upper {
   .adspot.ad-five {
     left:15%;
   }
-  
+
   .adspot.ad-six {
     left:auto;
     right: 15%;
@@ -1846,7 +1850,7 @@ input[type=range]:focus::-ms-fill-upper {
       left:35%;
       right:auto;
     }
-    
+
     .adspot.ad-six {
       left:55%;
       right: auto;
@@ -1896,11 +1900,11 @@ input[type=range]:focus::-ms-fill-upper {
     text-transform:uppercase;
   }
 
-  
+
   .bitcoin-cash {
     background-position:50% 60%;
   }
-  
+
   .no2x.three {
     display:none;
   }
@@ -1915,7 +1919,7 @@ input[type=range]:focus::-ms-fill-upper {
   table tr td .qmark {
     font-size:2rem;
   }
-  
+
   .modal-content {
     width:96%;
     left: 2%;
@@ -1924,12 +1928,12 @@ input[type=range]:focus::-ms-fill-upper {
   #modal-settings .modal-content{
     height: 90%;
     overflow: auto;
-  } 
+  }
 
    .modal-content{
     height: 90%;
     overflow: auto;
-  } 
+  }
 
   .qmark {
     margin:0;
@@ -1991,11 +1995,11 @@ input[type=range]:focus::-ms-fill-upper {
     }
 
     .ad-four{
-      right:20% !important; 
+      right:20% !important;
     }
   }
 
-  
+
 
   @media only screen and (orientation: portrait){
     .fees-bch,.fees-btc {
@@ -2047,7 +2051,7 @@ input[type=range]:focus::-ms-fill-upper {
     }
 
     .fee-title.secondary {display:none;}
-    
+
     .fee-title {
        /* Safari */
         -webkit-transform: rotate(90deg);
@@ -2094,7 +2098,7 @@ input[type=range]:focus::-ms-fill-upper {
   }
 
   #tx-list-button {
-    
+
     right:auto;
     left:5px;
     top:245px;
@@ -2137,7 +2141,7 @@ input[type=range]:focus::-ms-fill-upper {
     right: 15%;
     bottom:5%
   }
-  
+
   #modal-search fieldset {
     display:block;
     width:auto;
@@ -2177,13 +2181,13 @@ input[type=range]:focus::-ms-fill-upper {
     bottom:10.5%;
   }
 
-  
-  
+
+
 }
 
 @media screen and (max-width: 460px){
-  
+
     .cash-road-sign {
       top: 60px;
-    }    
+    }
   }

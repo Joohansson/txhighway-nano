@@ -9,8 +9,8 @@ const urlCash = "wss://ws-beta.nanoticker.info",
 	urlCoinMarketCap = "https://api.coinpaprika.com/v1/tickers/";
 
 // sockets
-const socketCash = new WebSocket(urlCash),
-	socketCore = new WebSocket(urlCore);
+const socketCore = new WebSocket(urlCore);
+var socket_nano_beta;
 
 // DOM elements
 const canvas = document.getElementById("renderCanvas"),
@@ -29,6 +29,7 @@ const canvas = document.getElementById("renderCanvas"),
 	transactionWrap = document.getElementById("tx-wrap"),
 	transactionList = document.getElementById("transactions"),
 	transactionsWaiting = document.getElementById("tx-waiting"),
+  transactionsWaitingNano = document.getElementById("tx-waiting-nano"),
 	donationGoal = document.getElementById("donationGoal");
 
 // sprites
@@ -78,6 +79,7 @@ let WIDTH = null,
 	SINGLE_LANE = HEIGHT/14,
 	SPEED = 12,
 	SPEED_MODIFIER = 0.5,
+  SPEED_MODIFIER_NANO = 2.5,
 	VOLUME = 0.5,
 	PRICE_BCH = 1,
 	PRICE_BTC = 100,
@@ -107,39 +109,13 @@ let txCash = [],
 	feesCore = [],
 	feesCash = [];
 
-// connect to sockets
-socketCash.onopen = ()=>{
-	socketCash.send(JSON.stringify({
-    action: "subscribe",
-    topic: "confirmation"
-  }));
-}
+// nano
+var nanoTransactions = 0;
+var txWaitingNanoOld = 0; //needed to check off screen tx
 
+// connect to sockets
 socketCore.onopen = ()=> {
 	socketCore.send(JSON.stringify({"op":"unconfirmed_sub"}));
-}
-
-socketCash.onmessage = (onmsg) =>{
-	let res = JSON.parse(onmsg.data);
-  let amount = res.message.amount;
-  if (amount == '0') {
-    amount = 1;
-  }
-  console.log(amount)
-
-	var txData = {
-		"out": [res.message.account],
-		"hash": res.message.hash,
-		"inputs": [],
-		"valueOut": (amount / 1000000000000000000000000000000),
-		"isCash": true
-	}
-
-	newTX(true, txData);
-}
-
-socketCash.onerror = (onerr) =>{
-	console.log(onerr);
 }
 
 socketCore.onmessage = (onmsg)=> {
@@ -160,6 +136,58 @@ socketCore.onmessage = (onmsg)=> {
 		blockNotify(res.x, false);
 
 	}
+}
+
+// Websocket for NANO with automatic reconnect
+async function socket_sleep_beta(wait) {
+  if (wait) {
+    await sleep_simple(10000)
+  }
+  socket_nano_beta = new WebSocket(urlCash)
+  socket_nano_beta.addEventListener('open', betaSocketOpenListener)
+  socket_nano_beta.addEventListener('message', betaSocketMessageListener)
+  socket_nano_beta.addEventListener('close', betaSocketCloseListener)
+}
+
+const betaSocketMessageListener = (event) => {
+  let res = JSON.parse(event.data);
+  let amount = res.message.amount;
+  if (amount == '0') {
+    amount = 1;
+  }
+
+  // show stats in window
+  nanoTransactions += 1;
+  cashPoolInfo.textContent = nanoTransactions
+
+	var txData = {
+		"out": [res.message.account],
+		"hash": res.message.hash,
+		"inputs": [],
+		"valueOut": (amount / 1000000000000000000000000000000),
+		"isCash": true
+	}
+
+	newTX(true, txData);
+}
+
+const betaSocketOpenListener = (event) => {
+  console.log("NANO Beta socket opened")
+  //Node default interface
+  socket_nano_beta.send(JSON.stringify({
+    action: "subscribe",
+    topic: "confirmation"
+  }))
+}
+
+const betaSocketCloseListener = (event) => {
+  if (socket_nano_beta) {
+    console.error('NANO Beta socket disconnected.')
+    socket_sleep_beta(true)
+  }
+  else {
+    socket_sleep_beta(false)
+  }
 }
 
 // initialise everything
@@ -250,7 +278,12 @@ function init(){
 		show('loading', false);
 	});
 
+  // Open NANO websocket
+  betaSocketCloseListener();
+}
 
+function sleep_simple(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function mobileCheck(){
@@ -265,7 +298,7 @@ function mobileCheck(){
 // gets latest utx count and sets it to signs
 function updateMempoolData(){
 	getPoolData(urlCors + "https://chain." + urlBtc + "tx/unconfirmed/summary", false);
-	getPoolData(urlCors + "https://bch-chain." + urlBtc + "tx/unconfirmed/summary", true);
+	//getPoolData(urlCors + "https://bch-chain." + urlBtc + "tx/unconfirmed/summary", true);
 }
 
 function updatePriceData(){
@@ -370,7 +403,7 @@ function blockNotify(data, isCash){
 	confirmedNotify.style.display = "block"; //no pun intended
 	setTimeout(() => {
 		confirmedNotify.style.display = "none";
-		//updateMempoolData();
+		updateMempoolData();
 		updatePriceData();
 	}, 4000);
 }
@@ -384,7 +417,7 @@ function getPoolData(url, isCash){
 			let obj = JSON.parse(xhr.responseText);
 
 			if (isCash){
-				cashPoolInfo.textContent = formatWithCommas(obj.data.count);
+				cashPoolInfo.textContent = "N/A";
 			} else {
 				corePoolInfo.textContent = formatWithCommas(obj.data.count);
 				let mod = obj.data.count/2400/100;
@@ -504,7 +537,7 @@ function addTxToList(isCash, txid, valueOut, car){
 
     if (isCash){
 		listItem.className = "txinfo-cash";
-		anchor.setAttribute("href", "https://nanocrawler.cc/explorer/block/" + txid);
+		anchor.setAttribute("href", "https://b.repnode.org/block/" + txid);
     } else {
 		listItem.className = "txinfo-core";
 		anchor.setAttribute("href", "https://btc.com/" + txid);
@@ -875,6 +908,7 @@ function drawVehicles(arr){
 	let y = null;
 	let width = null;
 	let txWaiting = 0;
+  let txWaitingNano = 0;
 	let isCash = true;
 
 	arr.forEach(function(item, index, object){
@@ -885,7 +919,7 @@ function drawVehicles(arr){
 			car = item.car;
 		}
 
-		let intro = -car.width - SPEED;
+		let intro = -car.width - SPEED * SPEED_MODIFIER_NANO;
 		if (!item.isCash) intro = -car.width - SPEED * SPEED_MODIFIER;
 
 		if (item.x > intro){
@@ -913,21 +947,27 @@ function drawVehicles(arr){
 
 		} else {
 			if (!item.isCash) txWaiting += 1;
+      else {
+        txWaitingNano += 1;
+        txWaitingNanoOld = txWaitingNano;
+      }
 		}
 
 		if(item.isCash){
-			item.x += SPEED;
+			item.x += SPEED * SPEED_MODIFIER_NANO;
 		} else {
 			let spd = SPEED * SPEED_MODIFIER;
 			item.x += spd;
 			isCash = false;
-
 		}
-
 	});
 
 	// update tx offscreen sign
 	transactionsWaiting.textContent = txWaiting;
+  transactionsWaitingNano.textContent = txWaitingNanoOld;
+  if (txWaitingNano == 0) {
+    txWaitingNanoOld = txWaitingNano;
+  }
 
 	// play horns if there's more than 5 vehicles off screen
 	if(audioHorns && !isCash && !isCoreMuted){
@@ -967,7 +1007,7 @@ function animate(){
 
 // adjust speed on slider change
 speedSlider.oninput = function(){
-	let newSpeed = 16 * (this.value/100);
+	let newSpeed = 48 * (this.value/100);
 	SPEED = newSpeed;
 }
 
