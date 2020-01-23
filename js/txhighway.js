@@ -118,6 +118,7 @@ var speedModifierNano = SPEED_MODIFIER_NANO; // dynamic speed
 var nanoWebsocketOffline = false; // to disable further connections
 var nanoTxLast = 0;
 var timeLast = Date.now()/1000;
+var timeLastOffscreen =  Date.now()/1000;
 
 // connect to sockets
 socketCore.onopen = ()=> {
@@ -975,8 +976,6 @@ function drawVehicles(arr){
 
         // dynamic speed
         if(item.isCash){
-          transactionsWaitingNano.textContent = txWaitingNanoOld;
-
           // adjust nano speed
           if (txWaitingNanoOld > 0) {
             speedModifierNano += 0.005;
@@ -1024,6 +1023,12 @@ function drawVehicles(arr){
 
 		if(item.isCash){
 			item.x += SPEED * speedModifierNano;
+      let time = Date.now()/1000
+      // only update 1 time per second
+      if (time > timeLastOffscreen + 1) {
+        timeLastOffscreen = time
+        transactionsWaitingNano.textContent = txWaitingNanoOld;
+      }
 		} else {
 			let spd = SPEED * SPEED_MODIFIER;
 			item.x += spd;
