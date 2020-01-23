@@ -114,6 +114,7 @@ let txCash = [],
 var nanoTransactions = 0;
 var txWaitingNanoOld = 0; //needed to check off screen tx
 var speedModifierNano = SPEED_MODIFIER_NANO; // dynamic speed
+var nanoWebsocketOffline = false; // to disable further connections
 
 // connect to sockets
 socketCore.onopen = ()=> {
@@ -141,12 +142,11 @@ socketCore.onmessage = (onmsg)=> {
 }
 
 // Websocket for NANO with automatic reconnect
-async function socket_sleep_beta(wait) {
-  if (wait) {
-    await sleep_simple(10000)
-  }
+async function socket_sleep_beta(sleep=5000) {
+  await sleep_simple(sleep)
   socket_nano_beta = new WebSocket(urlCash)
   socket_nano_beta.addEventListener('open', betaSocketOpenListener)
+  socket_nano_beta.addEventListener('error', betaSocketErrorListener)
   socket_nano_beta.addEventListener('message', betaSocketMessageListener)
   socket_nano_beta.addEventListener('close', betaSocketCloseListener)
 }
@@ -175,6 +175,7 @@ const betaSocketMessageListener = (event) => {
 
 const betaSocketOpenListener = (event) => {
   console.log("NANO Beta socket opened")
+  nanoWebsocketOffline = false
   //Node default interface
   socket_nano_beta.send(JSON.stringify({
     action: "subscribe",
@@ -182,13 +183,25 @@ const betaSocketOpenListener = (event) => {
   }))
 }
 
+const betaSocketErrorListener = (event) => {
+  console.error("Websocket looks offline. Please try again later.")
+  nanoWebsocketOffline = true
+}
+
 const betaSocketCloseListener = (event) => {
   if (socket_nano_beta) {
-    console.error('NANO Beta socket disconnected.')
-    socket_sleep_beta(true)
+    console.error('NANO Beta socket disconnected due to inactivity.')
+    // if socket offline, try again in 5min
+    if (nanoWebsocketOffline) {
+      socket_sleep_beta(300000)
+    }
+    // or in one second
+    else {
+      socket_sleep_beta(1000)
+    }
   }
   else {
-    socket_sleep_beta(false)
+    socket_sleep_beta(1000)
   }
 }
 
