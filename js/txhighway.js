@@ -224,9 +224,16 @@ function calcCPS() {
 	}, NANO_CPS_INTERVAL);
 }
 
+var $start = document.querySelector('#play_button')
+$(".play_button").show()
+$(".play_button").click(function(){
+  init()
+  $start.remove()
+})
+
 // initialise everything
-function init(){
-	// setup canvas
+function preInit() {
+  // setup canvas
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 
@@ -264,6 +271,14 @@ function init(){
 		$( ".sign" ).fadeToggle( "slow", "linear" );
 	}
 
+  // remove loading screen
+	onReady(function () {
+		show('page', true);
+		show('loading', false);
+	});
+}
+
+function init(){
 	// assign audio context
 	let AudioContext = window.AudioContext || window.webkitAudioContext || false;
 	if (AudioContext) {
@@ -308,12 +323,6 @@ function init(){
 
   // calc NANO cps
 	calcCPS()
-
-	// remove loading screen
-	onReady(function () {
-		show('page', true);
-		show('loading', false);
-	});
 
   // Open NANO websocket
   betaSocketCloseListener();
@@ -1208,4 +1217,4 @@ function show(id, value) {
     document.getElementById(id).style.display = value ? 'block' : 'none';
 }
 
-init();
+preInit();
