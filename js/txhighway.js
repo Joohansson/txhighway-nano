@@ -81,6 +81,7 @@ let WIDTH = null,
 	SPEED_MODIFIER = 0.5,
   SPEED_MODIFIER_NANO_MAX = 16,
   SPEED_MODIFIER_NANO = 0.5,
+  NANO_CPS_INTERVAL = 5, // calculate CPS based on x seconds
 	VOLUME = 0.5,
 	PRICE_BCH = 1,
 	PRICE_BTC = 100,
@@ -115,6 +116,8 @@ var nanoTransactions = 0;
 var txWaitingNanoOld = 0; //needed to check off screen tx
 var speedModifierNano = SPEED_MODIFIER_NANO; // dynamic speed
 var nanoWebsocketOffline = false; // to disable further connections
+var nanoTxLast = 0;
+var timeLast = Date.now()/1000;
 
 // connect to sockets
 socketCore.onopen = ()=> {
@@ -170,6 +173,15 @@ const betaSocketMessageListener = (event) => {
 		"isCash": true
 	}
 
+  // calculate CPS
+  let now = Date.now()/1000
+  // update every x seconds
+  if (now > timeLast + NANO_CPS_INTERVAL) {
+    let cps = (nanoTransactions - nanoTxLast) / (now - timeLast)
+    timeLast = now
+    nanoTxLast = nanoTransactions
+    document.getElementById("cps_nano").textContent = cps.toFixed(2);
+  }
 	newTX(true, txData);
 }
 
@@ -355,8 +367,8 @@ function getPriceData(url){
 			if (res.symbol == "NANO"){
 				PRICE_BCH = res.quotes.USD.price;
 				//document.getElementById("price_bch").textContent = "USD $" + formatWithCommas(parseFloat(PRICE_BCH).toFixed(2));
-        document.getElementById("price_bch").textContent = "Free";
-        console.log("Updating nano price")
+        //document.getElementById("price_bch").textContent = "Free";
+        //console.log("Updating nano price")
         console.log(PRICE_BCH)
 			} else if (res.symbol == "BTC"){
 				PRICE_BTC = res.quotes.USD.price;
@@ -940,7 +952,7 @@ function drawVehicles(arr){
 		if (item.x > intro){
 			if (!item.isPlaying){
 				addTxToList(item.isCash, item.id, item.valueOut, car);
-				if ((item.isCash && !isCashMuted) || (!item.isCash && !isCoreMuted)) addSounds(car);
+				if (!item.isCash && !isCoreMuted) addSounds(car);
 
         // dynamic speed
         if(item.isCash){
@@ -957,7 +969,6 @@ function drawVehicles(arr){
           if (speedModifierNano < SPEED_MODIFIER_NANO) {
             speedModifierNano = SPEED_MODIFIER_NANO;
           }
-          console.log(speedModifierNano)
 
           if (txWaitingNano == 0) {
             txWaitingNanoOld = txWaitingNano;
