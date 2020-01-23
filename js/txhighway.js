@@ -79,8 +79,8 @@ let WIDTH = null,
 	SINGLE_LANE = HEIGHT/14,
 	SPEED = 12,
 	SPEED_MODIFIER = 0.5,
-  SPEED_MODIFIER_NANO_MAX = 8,
-  SPEED_MODIFIER_NANO = 1,
+  SPEED_MODIFIER_NANO_MAX = 16,
+  SPEED_MODIFIER_NANO = 0.5,
 	VOLUME = 0.5,
 	PRICE_BCH = 1,
 	PRICE_BTC = 100,
@@ -941,6 +941,28 @@ function drawVehicles(arr){
 			if (!item.isPlaying){
 				addTxToList(item.isCash, item.id, item.valueOut, car);
 				if ((item.isCash && !isCashMuted) || (!item.isCash && !isCoreMuted)) addSounds(car);
+
+        // dynamic speed
+        if(item.isCash){
+          // adjust nano speed
+          if (txWaitingNanoOld > 0) {
+            speedModifierNano += 0.005;
+          }
+          else {
+            speedModifierNano -= 0.025;
+          }
+          if (speedModifierNano > SPEED_MODIFIER_NANO_MAX) {
+            speedModifierNano = SPEED_MODIFIER_NANO_MAX;
+          }
+          if (speedModifierNano < SPEED_MODIFIER_NANO) {
+            speedModifierNano = SPEED_MODIFIER_NANO;
+          }
+          console.log(speedModifierNano)
+
+          if (txWaitingNano == 0) {
+            txWaitingNanoOld = txWaitingNano;
+          }
+    		}
 			}
 			item.isPlaying = true;
 
@@ -971,24 +993,6 @@ function drawVehicles(arr){
 		if(item.isCash){
 			item.x += SPEED * speedModifierNano;
       transactionsWaitingNano.textContent = txWaitingNanoOld;
-
-      // adjust nano speed
-      if (txWaitingNanoOld > 0) {
-        speedModifierNano += 0.0001;
-      }
-      else {
-        speedModifierNano -= 0.0001;
-      }
-      if (speedModifierNano > SPEED_MODIFIER_NANO_MAX) {
-        speedModifierNano = SPEED_MODIFIER_NANO_MAX;
-      }
-      if (speedModifierNano < SPEED_MODIFIER_NANO) {
-        speedModifierNano = SPEED_MODIFIER_NANO;
-      }
-
-      if (txWaitingNano == 0) {
-        txWaitingNanoOld = txWaitingNano;
-      }
 		} else {
 			let spd = SPEED * SPEED_MODIFIER;
 			item.x += spd;
