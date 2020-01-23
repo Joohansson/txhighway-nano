@@ -81,7 +81,7 @@ let WIDTH = null,
 	SPEED_MODIFIER = 0.5,
   SPEED_MODIFIER_NANO_MAX = 16,
   SPEED_MODIFIER_NANO = 0.5,
-  NANO_CPS_INTERVAL = 5, // calculate CPS based on x seconds
+  NANO_CPS_INTERVAL = 5000, // calculate CPS based on x ms
 	VOLUME = 0.5,
 	PRICE_BCH = 1,
 	PRICE_BTC = 100,
@@ -172,16 +172,6 @@ const betaSocketMessageListener = (event) => {
 		"valueOut": (amount / 1000000000000000000000000000000),
 		"isCash": true
 	}
-
-  // calculate CPS
-  let now = Date.now()/1000
-  // update every x seconds
-  if (now > timeLast + NANO_CPS_INTERVAL) {
-    let cps = (nanoTransactions - nanoTxLast) / (now - timeLast)
-    timeLast = now
-    nanoTxLast = nanoTransactions
-    document.getElementById("cps_nano").textContent = cps.toFixed(2);
-  }
 	newTX(true, txData);
 }
 
@@ -215,6 +205,23 @@ const betaSocketCloseListener = (event) => {
   else {
     socket_sleep_beta(1000)
   }
+}
+
+function calcCPS() {
+  // calculate CPS
+  let now = Date.now()/1000
+  var cps = 0
+  if (now - timeLast > 0) {
+    cps = (nanoTransactions - nanoTxLast) / (now - timeLast)
+  }
+  timeLast = now
+  nanoTxLast = nanoTransactions
+  document.getElementById("cps_nano").textContent = cps.toFixed(2);
+
+  // set interval
+  setTimeout(() => {
+		calcCPS();
+	}, NANO_CPS_INTERVAL);
 }
 
 // initialise everything
@@ -298,6 +305,9 @@ function init(){
 	setTimeout(() => {
 		getDevDonations();
 	}, 3000);
+
+  // calc NANO cps
+	calcCPS()
 
 	// remove loading screen
 	onReady(function () {
