@@ -770,8 +770,9 @@ function getCar(valueOut, donation, isCash, userTx, sdTx, sw){
 // add sounds to sound array for playback
 function addSounds(carType){
 	if (!isVisible) return;
+  console.log(carType)
 
-	if (carType == carUserCash || carType == carUserCore) {
+	if (carType == carUserCore) {
 		playSound(audioLaCucaracha);
 	}
 
