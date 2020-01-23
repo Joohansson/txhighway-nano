@@ -975,12 +975,14 @@ function drawVehicles(arr){
 
         // dynamic speed
         if(item.isCash){
+          transactionsWaitingNano.textContent = txWaitingNanoOld;
+
           // adjust nano speed
           if (txWaitingNanoOld > 0) {
             speedModifierNano += 0.005;
           }
           else {
-            speedModifierNano -= 0.025;
+            speedModifierNano -= 0.005;
           }
           if (speedModifierNano > SPEED_MODIFIER_NANO_MAX) {
             speedModifierNano = SPEED_MODIFIER_NANO_MAX;
@@ -1022,7 +1024,6 @@ function drawVehicles(arr){
 
 		if(item.isCash){
 			item.x += SPEED * speedModifierNano;
-      transactionsWaitingNano.textContent = txWaitingNanoOld;
 		} else {
 			let spd = SPEED * SPEED_MODIFIER;
 			item.x += spd;
